@@ -1,4 +1,4 @@
-# 🤟 Signify: learn sign language by playing
+#Signify: learn sign language by playing
 
 **Live:** https://britishpay.github.io/Raccon-and-fox-test/ (no sign-up; allow the camera)
 
