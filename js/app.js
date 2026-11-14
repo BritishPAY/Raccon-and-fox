@@ -6,6 +6,7 @@ import { personal } from './personal.js';
 import { camera } from './camera.js';
 import { classify } from './classifier.js';
 import { isMotion } from './motion.js';
+import { wordIds } from './words.js';
 import { t, L, ui, sl } from './i18n.js';
 import { $, esc, S, handDiagram, lcard, createTrainer, confetti, toast, flushAchievements } from './ui.js';
 
@@ -149,7 +150,9 @@ function viewDaily() {
   const rnd = () => ((a = (a * 16807) % 2147483647) / 2147483647);
   const picks = [];
   while (picks.length < Math.min(6, poolBase.length)) { const p = poolBase[Math.floor(rnd() * poolBase.length)]; if (!picks.includes(p) || poolBase.length < 3) picks.push(p); }
-  const words = units()[units().length - 1].steps.filter((x) => x.word);
+  // last step: an everyday word sign already learned, otherwise a fingerspelled family word
+  const signedWords = wordIds(sl()).filter((id) => store.hasSign(id)).map((sign) => ({ sign }));
+  const words = signedWords.length ? signedWords : units().flatMap((u) => u.steps).filter((x) => x.word);
   const steps = [...picks.map((sign) => ({ sign })), words[Math.floor(rnd() * words.length)]];
   const tips = [...CULTURE.culture, ...CULTURE.face.filter((c) => !c.only || c.only === sl())];
   const tip = tips[seedDay % tips.length];
@@ -284,8 +287,8 @@ function signCard(step, letterIdx = 0) {
   const info = S(cur);
   return `
     ${step.word ? `<div class="word">${seq.map((l, i) => `<span class="${i < letterIdx ? 'done' : i === letterIdx ? 'cur' : ''}">${l}</span>`).join('')}</div><p class="muted">${t('lesson.spell', { word: esc(step.word) })}</p>` : ''}
-    <div class="sign-card">
-      <figure class="hand-fig">${lcard(cur, step.word ? 150 : 180)}<figcaption>${t('lesson.caption')}</figcaption></figure>
+    <div class="sign-card ${info.word ? 'is-word' : ''}">
+      <figure class="hand-fig">${lcard(cur, step.word ? 150 : info.word ? 210 : 180)}<figcaption>${info.word ? t('lesson.wordCaption') : t('lesson.caption')}</figcaption></figure>
       <div><div class="sign-label">${esc(info.label)}</div><p>${esc(info.how)}</p></div>
     </div>`;
 }

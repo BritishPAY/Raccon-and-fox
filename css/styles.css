@@ -65,6 +65,7 @@ main { flex: 1; width: min(1140px, 100%); margin: 0 auto; padding: 28px 22px 64p
 .footer { display: flex; justify-content: space-between; gap: 12px; padding: 18px 24px; font-size: .86rem; color: var(--ink-soft); border-top: 2px solid var(--line); }
 
 /* ---------- Buttons ---------- */
+[hidden] { display: none !important; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 22px; border-radius: 999px; border: var(--frame); font-size: 1.05rem; font-weight: 700; text-decoration: none; cursor: pointer; color: var(--ink); background: #fff; transition: transform .08s, box-shadow .08s; }
 .btn.primary { background: var(--marigold); box-shadow: var(--lift); }
 .btn.primary:hover { background: #ffbb3d; }
@@ -173,6 +174,10 @@ a.today-stat:hover { background: var(--paper); }
 .sign-card { display: flex; gap: 22px; align-items: center; margin-top: 14px; }
 .sign-label { font-size: 4.2rem; font-weight: 800; line-height: .95; }
 .sign-card p { margin: 8px 0 0; }
+.sign-card > div { min-width: 0; }
+.sign-card.is-word { align-items: flex-start; }
+.sign-card.is-word figure { flex: 0 0 auto; max-width: 230px; margin: 0; }
+.sign-card.is-word .sign-label { font-size: clamp(2rem, 4vw, 3rem); }
 .word { display: flex; gap: 6px; margin-top: 12px; font-size: 2.5rem; font-weight: 800; }
 .word span { min-width: 1.15em; text-align: center; border-bottom: 5px solid var(--line); color: #b9b1da; }
 .word span.done { color: var(--agave); border-color: var(--agave); }

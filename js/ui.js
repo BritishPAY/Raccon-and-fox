@@ -6,6 +6,7 @@ import { store } from './store.js';
 import { t, L, ui, sl } from './i18n.js';
 import { tier, chime } from './gamify.js';
 import { personal, featureVector, roughlyRight } from './personal.js';
+import { isWord, detectWord } from './words.js';
 import './handanim.js';
 
 // Current-language info for a sign
@@ -17,7 +18,7 @@ export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', 
 // Animated 3D hand: folds from an open hand into the letter, moving fingers outlined.
 export function handDiagram(signId, size = 140) {
   const s = S(signId);
-  return `<span class="hand-pic" style="width:${size}px;height:${size}px"><sign-hand sign="${signId}" lang="${sl()}" size="${size}"></sign-hand>${s.motion ? `<span class="motion-badge">${t('motion.badge')}</span>` : ''}</span>`;
+  return `<span class="hand-pic" style="width:${size}px;height:${size}px"><sign-hand sign="${signId}" lang="${sl()}" size="${size}"></sign-hand>${s.word ? `<span class="motion-badge">${t('word.badge')}</span>` : s.motion ? `<span class="motion-badge">${t('motion.badge')}</span>` : ''}</span>`;
 }
 
 // A letter as a Lotería card: numbered frame, animated hand, name at the bottom.
@@ -26,8 +27,8 @@ export function lcard(signId, size = 160, extra = '') {
   const s = S(signId);
   const idx = ['A','B','C','D','E','F','G','H','I','J','K','L','LL','M','N','Ñ','O','P','Q','R','RR','S','T','U','V','W','X','Y','Z'];
   const list = sl() === 'lsm' ? idx : idx.filter((x) => !['LL', 'Ñ', 'RR'].includes(x));
-  const n = list.indexOf(signId) + 1 || '♥';
-  const name = signId === 'ILY' ? s.label : `${LOTERIA_ARTICLE[ui()] ? LOTERIA_ARTICLE[ui()] + ' ' : ''}${s.short}`;
+  const n = s.word ? s.emoji : list.indexOf(signId) + 1 || '♥';
+  const name = s.word || signId === 'ILY' ? s.label : `${LOTERIA_ARTICLE[ui()] ? LOTERIA_ARTICLE[ui()] + ' ' : ''}${s.short}`;
   return `<div class="lcard ${extra}" data-sign="${signId}" style="--w:${size}px"><span class="lnum">${n}</span><div class="lpic">${handDiagram(signId, Math.round(size * 0.82))}</div><span class="lname">${esc(name)}</span></div>`;
 }
 
@@ -90,6 +91,7 @@ export function createTrainer(root, { compact = false } = {}) {
   let targetSince = 0, roughFrames = 0, teaching = null;
   const COLORS = { idle: '#1fb59a', green: '#1fb59a', yellow: '#ffc94a', red: '#ff6b4a' };
   const history = [];
+  let lastFace = null, faceByMe = false; // word signs need to know where the face is
 
   const setProgress = (p) => (bar.style.strokeDashoffset = RING * (1 - Math.min(1, p)));
 
@@ -101,7 +103,8 @@ export function createTrainer(root, { compact = false } = {}) {
       if (ev.status === 'error') skipBtn.hidden = false;
       return;
     }
-    if (!target) return;
+    if (ev.type === 'face') { if (ev.points) lastFace = { t: performance.now(), points: ev.points }; return; }
+    if (ev.type !== 'frame' || !target) return;
     const now = performance.now();
     if (now < cooldownUntil) return;
     if (!ev.points) {
@@ -110,8 +113,23 @@ export function createTrainer(root, { compact = false } = {}) {
       seen.hidden = true;
       return;
     }
-    history.push({ t: now, points: ev.points });
-    while (history.length && now - history[0].t > 2000) history.shift();
+    // the hand often hides the face, so keep the last face seen in the past 3 s
+    const face = lastFace && now - lastFace.t < 3000 ? lastFace.points : null;
+    history.push({ t: now, points: ev.points, face });
+    while (history.length && now - history[0].t > 2400) history.shift();
+    if (isWord(target, sl())) {
+      const m = detectWord(target, sl(), history, now);
+      setProgress(m.progress);
+      seen.hidden = true;
+      if (m.done) return succeed();
+      const s = S(target);
+      fb.className = m.stage === 'shape' ? 'feedback' : 'feedback good';
+      fb.textContent = m.stage === 'shape' ? t('w.shape', { how: s.how })
+        : m.stage === 'place' ? t('w.place', { where: t('place.' + (s.at || 'up')) })
+        : m.noFace ? t('w.face') : t('w.move', { how: t('move.' + s.move) });
+      camera.color = m.stage === 'shape' ? COLORS.red : COLORS.yellow;
+      return;
+    }
     if (isMotion(target, sl())) {
       const m = detectMotion(target, history, now, sl());
       setProgress(m.progress);
@@ -164,7 +182,7 @@ export function createTrainer(root, { compact = false } = {}) {
 
   function succeed(skipped = false) {
     const cb = onSuccess;
-    const moving = isMotion(target, sl());
+    const moving = isMotion(target, sl()) || isWord(target, sl());
     const tr = tier(moving ? 0.8 : precN ? precSum / precN : 0);
     const xp = Math.round(10 * tr.mult);
     holdStart = null; ema = null; setProgress(0); history.length = 0;
@@ -194,9 +212,12 @@ export function createTrainer(root, { compact = false } = {}) {
       skipBtn.hidden = camera.status !== 'error';
       skipTimer = setTimeout(() => (skipBtn.hidden = false), 20000);
       targetSince = performance.now(); roughFrames = 0; teaching = null; teachBtn.hidden = true;
+      history.length = 0;
+      if (isWord(sign, sl())) { faceByMe = true; camera.enableFace(true); }
+      else if (faceByMe) { faceByMe = false; camera.enableFace(false); }
     },
     clear() { target = null; onSuccess = null; setProgress(0); clearTimeout(skipTimer); skipBtn.hidden = true; teachBtn.hidden = true; },
-    destroy() { unsub(); clearTimeout(skipTimer); },
+    destroy() { unsub(); clearTimeout(skipTimer); if (faceByMe) camera.enableFace(false); },
   };
 }
 

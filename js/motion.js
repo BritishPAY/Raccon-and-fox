@@ -46,7 +46,7 @@ function detectJ(frames, size) {
 }
 
 // Count left/right strokes of a coordinate series (with hysteresis).
-function strokes(xs, hyst) {
+export function strokes(xs, hyst) {
   let dirn = 0, ext = xs[0], start = xs[0];
   const out = [];
   for (let i = 1; i < xs.length; i++) {

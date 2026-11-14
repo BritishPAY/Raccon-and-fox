@@ -3,6 +3,8 @@
 // fingers = expected state of index, middle, ring, pinky (drives coaching);
 // point = which way the fingers aim on screen; motion = moved in the air.
 
+import { WORDS } from './words.js';
+
 const T = (en, es) => ({ en, es });
 
 const BASE = {
@@ -59,6 +61,8 @@ export const ALPHABET_BY_LANG = {
 
 // Everything the UI needs about one sign, in the chosen languages.
 export function sign(id, sl = 'asl', ui = 'en') {
+  const w = WORDS[sl]?.[id];
+  if (w) return { id, word: true, motion: w.move !== 'hold', emoji: w.emoji, label: w.label[ui], short: w.label[ui], how: w.how[ui], fingers: [], at: w.at, move: w.move };
   const src = (sl === 'lsm' && LSM_DIFF[id]) || BASE[id];
   if (!src) return null;
   return { id, ...src, label: src.label ? src.label[ui] : id, short: src.short || id, how: src.how[ui] };
@@ -85,7 +89,9 @@ export const UNITS_BY_LANG = {
     U('u4', T('The fist family', 'La familia del puño'), '✊', T('Same fist, different thumb.', 'El mismo puño, otro pulgar.'), ['S', 'T', 'N', 'M', 'X']),
     U('u5', T('Sideways & down', 'De lado y hacia abajo'), '👉', T('Turn your hand.', 'Gira la mano.'), ['G', 'H', 'Q', 'P']),
     U('u6', T('Letters that move', 'Letras con movimiento'), '✍️', T('Draw them in the air.', 'Dibújalas en el aire.'), ['J', 'Z']),
-    U('u7', T('Words for family', 'Palabras para la familia'), '💛', T('Your first words with your child (ASL spells English words).', 'Tus primeras palabras con tu hijo (en ASL se deletrea en inglés).'), ['ILY', { word: 'MOM' }, { word: 'DAD' }, { word: 'MILK' }, { word: 'HUG' }]),
+    U('u7', T('Spell your first words', 'Deletrea tus primeras palabras'), '💛', T('Fingerspelling practice: names and new words are spelled letter by letter.', 'Práctica de deletreo: los nombres y las palabras nuevas se deletrean letra por letra.'), ['ILY', { word: 'MOM' }, { word: 'DAD' }, { word: 'MILK' }, { word: 'HUG' }]),
+    U('u8', T('Everyday words', 'Palabras de todos los días'), '🗣️', T('Real word signs: hello, thank you, please, sorry, yes, no. Your hand, your face and a movement.', 'Señas de palabras reales: hola, gracias, por favor, perdón, sí, no. Tu mano, tu cara y un movimiento.'), ['HELLO', 'THANK_YOU', 'PLEASE', 'SORRY', 'YES', 'NO']),
+    U('u9', T('Words at home', 'Palabras en casa'), '🏠', T('Mom, dad, eat, milk, water, me: what a toddler asks for all day.', 'Mamá, papá, comer, leche, agua, yo: lo que un niño pide todo el día.'), ['MOM', 'DAD', 'EAT', 'MILK', 'WATER', 'ME']),
   ],
   lsm: [
     U('u1', T('First letters', 'Primeras letras'), '👋', T('Five easy shapes to warm up.', 'Cinco formas fáciles para empezar.'), ['A', 'B', 'L', 'Y', 'I']),
@@ -95,7 +101,8 @@ export const UNITS_BY_LANG = {
     U('u5', T('Up & down', 'Arriba y abajo'), '☝️', T('G points up in LSM; P points down.', 'En LSM la G apunta hacia arriba; la P, hacia abajo.'), ['G', 'P']),
     U('u6', T('Letters that move', 'Letras con movimiento'), '✍️', T('J, Z, K, Q and X move in LSM.', 'En LSM, J, Z, K, Q y X llevan movimiento.'), ['J', 'Z', 'K', 'Q', 'X']),
     U('u7', T('Spanish letters', 'Letras del español'), '🇲🇽', T('Ñ, LL and RR.', 'Ñ, LL y RR.'), ['Ñ', 'LL', 'RR']),
-    U('u8', T('Words for family', 'Palabras para la familia'), '💛', T('Your first words with your child.', 'Tus primeras palabras con tu hijo.'), [{ word: 'MAMA' }, { word: 'PAPA' }, { word: 'LECHE' }, { word: 'AGUA' }, { word: 'NIÑA' }]),
+    U('u8', T('Spell your first words', 'Deletrea tus primeras palabras'), '💛', T('Fingerspelling practice with family words.', 'Práctica de deletreo con palabras de la familia.'), [{ word: 'MAMA' }, { word: 'PAPA' }, { word: 'LECHE' }, { word: 'AGUA' }, { word: 'NIÑA' }]),
+    U('u9', T('Everyday words', 'Palabras de todos los días'), '🗣️', T('Real LSM word signs: hola, gracias, por favor. More words use two hands; two-hand tracking is next.', 'Señas reales de LSM: hola, gracias, por favor. Muchas otras palabras usan las dos manos; el seguimiento de dos manos viene pronto.'), ['HOLA', 'GRACIAS', 'POR_FAVOR']),
   ],
 };
 

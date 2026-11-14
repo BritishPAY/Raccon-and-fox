@@ -13,9 +13,10 @@ Built in 24 hours for Business Cup 2.0. Track: Skills.
 | **Two sign languages, two interface languages** | ASL (26 letters) and LSM (29 signs: the Spanish alphabet plus LL and RR). The whole interface, coaching and stories switch between English and Spanish. About 1 in 5 deaf students in the US is Hispanic, and leading apps teach in English only |
 | **Real-time recognition** | MediaPipe Hand Landmarker (21 3D points) + our own handshape classifier and motion detector, all in the browser |
 | **Coaching** | When the sign is wrong, the app says what it sees ("That looks like B") and what to change |
+| **Everyday word signs** | Not just fingerspelling: 12 ASL words (hello, thank you, please, sorry, yes, no, mom, dad, eat, milk, water, me) and 3 LSM words (hola, gracias, por favor). A word sign is checked as handshape + place (forehead, lips, chin, chest, measured against the learner's face with MediaPipe Face Landmarker) + movement (tap, salute out, forward-and-down, circle, nod, snap, squeeze, wave). The animation shows a signer's head with the target place highlighted. LSM words that need two hands (leche, agua) come with two-hand tracking |
 | **Teach it my hand** | Hands and webcams differ. If a sign is roughly right but still not accepted after 8 s, the learner records ~1 s of their own version; from then on it counts (nearest-neighbour on the same features, stored only in their browser). Shapes that are clearly wrong are refused |
 | **Animated hand** | Each letter is a Lotería-style card with a shaded 3D hand that folds from an open palm into the shape. The fingers that move are outlined; moving letters draw their path in the air |
-| **Learning path** | 7 ASL / 8 LSM lessons: the full alphabet, letters drawn in the air, first family words. Learned letters get a bean on your *tabla* |
+| **Learning path** | 9 ASL / 9 LSM lessons: the full alphabet, letters drawn in the air, fingerspelled family words, everyday word signs. Learned letters get a bean on your *tabla* |
 | **Story quests** | "Good morning, Mia" and "Park day": the dialogue only moves on when you sign the answer |
 | **Sign Sprint + duel** | 60-second arcade with combos. Share a link: your friend plays the *same* sequence (seeded) and sees your score to beat |
 | **Gamification** | Precision XP: the live skeleton turns green/yellow/red; 90%+ is a "Perfect Snap" (1.5× XP), sloppy shapes still pass at 0.5× (no hearts, no lockouts). Daily 5-minute warm-up with a 50 XP goal that keeps the streak, streak freezes, weekly leagues (Bronze → Diamond), sounds and vibration, share cards for Stories/LinkedIn |
@@ -31,6 +32,7 @@ No sign-up, no backend, no video upload: hand and face tracking run on the user'
 | `js/camera.js` | Webcam → MediaPipe HandLandmarker (VIDEO mode, GPU with CPU fallback); face tracking on demand |
 | `js/classifier.js` | Scale-invariant features (finger extension from joint angles, thumb position relative to the knuckles, fingertip distances, pointing direction) and one fuzzy rule per sign, for ASL and LSM. Works for left and right hands and a mirrored camera |
 | `js/motion.js` | Letters that move, from a 1.8 s frame history: J (pinky hook), Z (index draws Z); LSM adds K (rises), Ñ / Q / RR (wiggle), X (forward and back), LL (slides sideways) |
+| `js/words.js` | Everyday word signs: handshape, place relative to the face, and movement (with circle vs. nod vs. line told apart) |
 | `js/personal.js` | "Teach it my hand" calibration |
 | `js/face.js` | Facial grammar drills, measured against the learner's own neutral face |
 | `js/handmodel.js` | Kinematic reference hand: draws every sign and generates test data |
@@ -46,6 +48,7 @@ No sign-up, no backend, no video upload: hand and face tracking run on the user'
 node tests/classifier.test.mjs   # every ASL and LSM handshape × 200 randomly rotated/scaled/mirrored/noisy synthetic hands, non-letter shapes, moving letters
 node tests/personal.test.mjs     # "teach it my hand": a learner's own version is accepted, other letters are not confused with it
 node tests/face.test.mjs         # facial grammar drills on simulated face data
+node tests/words.test.mjs        # every word sign on synthetic hand+face sequences; wrong place, no movement, wrong handshape and lookalike movements are rejected
 python3 -m http.server 8765 &
 python3 tests/e2e.py             # full browser run with a simulated tracker: lessons, story, 60 s sprint, calibration, Spanish + LSM, daily warm-up, face drills, progress
 ```

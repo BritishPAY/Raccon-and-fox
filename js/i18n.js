@@ -122,6 +122,11 @@ const STR = {
     'cam.loading': 'Starting camera & hand tracker…', 'cam.denied': 'Camera access is blocked. Allow it in your browser’s address bar, then reload the page.',
     'cam.nocamera': 'No camera found. Signify needs a webcam to check your signs.', 'cam.load': 'Could not load the hand tracker. Check your internet connection and reload.',
     'cam.off': 'Camera is off', 'tr.show': 'Show your hand to the camera', 'tr.skip': 'Skip this one (no XP)', 'tr.hold': 'Hold it…', 'tr.nice': 'Nice!', 'tr.skipped': 'Skipped',
+    'w.shape': 'Handshape first. {how}', 'w.place': 'Good shape. Now bring your hand to your {where}', 'w.move': 'Now the movement: {how}', 'w.face': 'Keep your face in view so I can see where your hand is',
+    'place.forehead': 'forehead', 'place.mouth': 'lips', 'place.chin': 'chin', 'place.chest': 'chest', 'place.up': 'head height',
+    'move.out': 'move it out and away', 'move.outDown': 'move it forward and down', 'move.circle': 'rub a circle', 'move.tap': 'touch and hold a moment', 'move.hold': 'hold it there',
+    'move.nod': 'nod your fist up and down', 'move.snap': 'snap the fingers shut onto your thumb, twice', 'move.squeeze': 'squeeze open and shut, twice', 'move.wave': 'wave side to side',
+    'word.badge': 'word sign', 'lesson.wordCaption': 'Your face in view · the yellow spot shows where your hand goes',
     'tr.see': 'I see: {s}', 'tr.perfect': 'Perfect Snap! +{xp} XP', 'tr.good': 'Nice! +{xp} XP', 'tr.ok': 'Accepted, +{xp} XP. Make the shape cleaner next time', 'tr.looks': 'That looks like {s}. {tip}.', 'tr.move': 'Now move it: {how}', 'tr.shape': 'Start with the handshape for {s}',
 
     'tip.up': 'Straighten your {f}', 'tip.down': 'Fold your {f} down', 'tip.side': 'Turn your hand so the fingers point sideways',
@@ -253,6 +258,11 @@ const STR = {
     'cam.loading': 'Iniciando cámara y seguimiento de la mano…', 'cam.denied': 'El acceso a la cámara está bloqueado. Permítelo en la barra de direcciones y recarga la página.',
     'cam.nocamera': 'No se encontró una cámara. Signify necesita una cámara web para revisar tus señas.', 'cam.load': 'No se pudo cargar el seguimiento de la mano. Revisa tu conexión y recarga.',
     'cam.off': 'Cámara apagada', 'tr.show': 'Muestra tu mano a la cámara', 'tr.skip': 'Saltar esta (sin XP)', 'tr.hold': 'Mantén…', 'tr.nice': '¡Muy bien!', 'tr.skipped': 'Saltada',
+    'w.shape': 'Primero la forma de la mano. {how}', 'w.place': 'Buena forma. Ahora lleva la mano a tu {where}', 'w.move': 'Ahora el movimiento: {how}', 'w.face': 'Mantén tu cara a la vista para que vea dónde está tu mano',
+    'place.forehead': 'frente', 'place.mouth': 'boca', 'place.chin': 'barbilla', 'place.chest': 'pecho', 'place.up': 'altura de la cabeza',
+    'move.out': 'llévala hacia afuera', 'move.outDown': 'llévala hacia adelante y abajo', 'move.circle': 'haz un círculo', 'move.tap': 'toca y mantén un momento', 'move.hold': 'mantenla ahí',
+    'move.nod': 'mueve el puño arriba y abajo', 'move.snap': 'cierra los dedos sobre el pulgar, dos veces', 'move.squeeze': 'abre y cierra apretando, dos veces', 'move.wave': 'muévela de lado a lado',
+    'word.badge': 'seña de palabra', 'lesson.wordCaption': 'Tu cara a la vista · el punto amarillo muestra a dónde va la mano',
     'tr.see': 'Veo: {s}', 'tr.perfect': '¡Perfect Snap! +{xp} XP', 'tr.good': '¡Bien! +{xp} XP', 'tr.ok': 'Aceptada, +{xp} XP. La próxima vez haz la forma más clara', 'tr.looks': 'Parece una {s}. {tip}.', 'tr.move': 'Ahora muévela: {how}', 'tr.shape': 'Empieza con la forma de la mano de {s}',
 
     'tip.up': 'Estira el {f}', 'tip.down': 'Dobla el {f}', 'tip.side': 'Gira la mano para que los dedos apunten de lado',

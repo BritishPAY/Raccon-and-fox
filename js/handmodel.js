@@ -122,6 +122,12 @@ export const SPECS_LSM = {
 };
 export const SPECS_BY_LANG = { asl: SPECS, lsm: SPECS_LSM };
 
+// Extra handshapes used only by word signs (NO = two fingers snapping onto the thumb)
+export const WORD_SPECS = {
+  NO_OPEN: F(STRAIGHT, STRAIGHT, FIST, FIST, { x: -0.95, y: 0.75, z: -0.1 }, { spread: { index: -4, middle: 2 }, roll: 60 }),
+  NO_SHUT: F(TOUCH, TOUCH, FIST, FIST, (f) => add(f.index[3], { x: 0.06, y: -0.06, z: 0 }), { roll: 60 }),
+};
+
 const NAMES = ['index', 'middle', 'ring', 'pinky'];
 // Turn a spec into plain numbers (thumb target resolved, every spread filled in).
 export function resolveSpec(spec) {

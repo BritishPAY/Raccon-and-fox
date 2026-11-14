@@ -31,7 +31,10 @@ class Camera {
     this.color = '#1fb59a';
   }
 
-  async loadModel() {
+  // one shared load, however many callers ask at once
+  loadModel() { return (this.modelPromise ??= this.loadModelOnce().catch((e) => { this.modelPromise = null; throw e; })); }
+
+  async loadModelOnce() {
     if (this.landmarker) return;
     const vision = await import(`${CDN}/vision_bundle.mjs`);
     const fileset = await vision.FilesetResolver.forVisionTasks(`${CDN}/wasm`);
@@ -131,7 +134,8 @@ class Camera {
           const fr = this.faceLandmarker.detectForVideo(v, performance.now());
           const cats = fr.faceBlendshapes?.[0]?.categories || [];
           const blend = Object.fromEntries(cats.map((c) => [c.categoryName, c.score]));
-          emit({ type: 'face', blend, landmarks: fr.faceLandmarks?.[0] || null });
+          const lm = fr.faceLandmarks?.[0] || null;
+          emit({ type: 'face', blend, landmarks: lm, points: lm ? toIsotropic(lm, v.videoWidth, v.videoHeight) : null });
         }
       }
     } catch (e) { console.error('[camera loop]', e); }

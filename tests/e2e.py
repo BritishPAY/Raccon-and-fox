@@ -7,6 +7,7 @@ import subprocess, os
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POSES=json.loads(subprocess.check_output(['node', os.path.join(ROOT,'tests','dump-poses.mjs')]))
 POSES_LSM=json.loads(subprocess.check_output(['node', os.path.join(ROOT,'tests','dump-poses.mjs'), 'lsm']))
+WORDS={sl: json.loads(subprocess.check_output(['node', os.path.join(ROOT,'tests','dump-words.mjs'), sl])) for sl in ['asl','lsm']}
 URL=os.environ.get('SQ_URL','http://localhost:8765/')
 FAKE="""export const FilesetResolver={forVisionTasks:async()=>({})};
 export const HandLandmarker={createFromOptions:async()=>({detectForVideo:()=>({landmarks: window.__pose?[window.__pose]:[]})})};
@@ -22,6 +23,24 @@ async def main():
       await pg.evaluate(f"window.__pose=window.__POSES['{sign}']"); await pg.wait_for_timeout(ms)
     async def nohand(ms=300):
       await pg.evaluate("window.__pose=null"); await pg.wait_for_timeout(ms)
+    # word signs: play a hand+face sequence in a loop (30 fps)
+    async def play_word(seq, ms=3200):
+      await pg.evaluate('''s=>{clearInterval(window.__wi); let i=0; window.__face=()=>({lm:s.face, blend:{}}); window.__wi=setInterval(()=>{window.__pose=s.hand[i%s.hand.length]; i++;},33);}''', seq)
+      await pg.wait_for_timeout(ms)
+      await pg.evaluate("clearInterval(window.__wi); window.__pose=null; window.__face=null"); await pg.wait_for_timeout(400)
+    async def word_lesson(sl, unit, ids):
+      await pg.goto(URL+'#/lesson/'+unit); await pg.wait_for_timeout(1500)
+      got=[]
+      for w in ids:
+        label=(await pg.inner_text('.sign-label')).strip()
+        await pg.evaluate('''s=>{clearInterval(window.__wi); let i=0; window.__face=()=>({lm:s.face, blend:{}}); window.__wi=setInterval(()=>{window.__pose=s.hand[i%s.hand.length]; i++;},33);}''', WORDS[sl][w])
+        ok=False
+        for _ in range(40):
+          await pg.wait_for_timeout(100)
+          if 'done-card' in await pg.inner_html('.lesson-card') or (await pg.inner_text('.feedback')).strip().startswith(('Perfect','Nice','Accepted','¡Perfect','¡Bien','Aceptada')): ok=True; break
+        await pg.evaluate("clearInterval(window.__wi); window.__pose=null; window.__face=null"); await pg.wait_for_timeout(900)
+        got.append(label+('' if ok else ' ✗'))
+      print(f'{sl} words {unit}:', ' / '.join(got), '->', (await pg.inner_text('.lesson-card'))[:30].replace('\n',' '))
     # wrong sign first -> coaching text
     await pg.goto(URL+'#/lesson/u1'); await pg.wait_for_timeout(1500)
     await show('B',800); print('coach while showing B for A:', await pg.inner_text('.feedback'), '|', await pg.inner_text('.seen'))
@@ -72,6 +91,13 @@ async def main():
     print('teach:', teach_visible, '| card now:', (await pg.inner_text('.sign-label')).strip())
     await pg.evaluate("localStorage.removeItem('signify:personal:v1')")
 
+    # everyday word signs (handshape + place on the face + movement)
+    await pg.goto(URL+'#/lesson/u8'); await pg.wait_for_timeout(1500)
+    await show('S',900); print('word coach (fist for HELLO):', await pg.inner_text('.feedback'))
+    sq=WORDS['asl']['MOM']; await play_word({'hand':sq['hand'],'face':WORDS['asl']['HELLO']['face']}, 1200)
+    await word_lesson('asl','u8',['HELLO','THANK_YOU','PLEASE','SORRY','YES','NO'])
+    await word_lesson('asl','u9',['MOM','DAD','EAT','MILK','WATER','ME'])
+
     # Spanish interface + Mexican Sign Language
     await pg.goto(URL+'#/learn'); await pg.wait_for_timeout(800)
     await pg.click('#settings [data-ui=es]'); await pg.wait_for_timeout(300)
@@ -87,6 +113,7 @@ async def main():
     for s in ['G','P']:
       await show(s); await nohand()
     print('LSM lesson u5:', (await pg.inner_text('.lesson-card'))[:45].replace('\n',' '))
+    await word_lesson('lsm','u9',['HOLA','GRACIAS','POR_FAVOR'])
     await pg.goto(URL+'#/'); await pg.wait_for_timeout(600)
     print('home ES:', (await pg.inner_text('.hero-text'))[:120].replace('\n',' '))
     # daily warm-up + culture face drills + progress page (LSM, Spanish)
