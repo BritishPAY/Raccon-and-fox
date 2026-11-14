@@ -1,6 +1,6 @@
 # Signify: learn sign language by playing
 
-**Live:** https://britishpay.github.io/Raccon-and-fox-test/ (no sign-up; allow the camera)
+**Live:** https://britishpay.github.io/Raccon-and-fox/ (no sign-up; allow the camera)
 
 **For hearing parents of deaf kids, in English or Spanish, for American Sign Language (ASL) or Mexican Sign Language (LSM).** 9 in 10 deaf children are born to hearing parents, and most of them start learning sign language from zero, after the diagnosis, while working full time. Video lessons can't tell you whether your hand is right. Signify can: your webcam checks every handshape in about half a second and tells you exactly what to fix ("Fold your ring finger", "Tuck your thumb in").
 
